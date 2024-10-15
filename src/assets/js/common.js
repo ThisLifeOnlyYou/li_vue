@@ -94,7 +94,6 @@ export function ajaxGet(url, param) {
         },
         params:param
     }).catch((e) => {
-        console.log(e);
         if (
             e.response === undefined ||
             e.response.data === undefined
