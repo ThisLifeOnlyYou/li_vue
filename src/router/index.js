@@ -4,6 +4,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 const LoginForm = () => import('../views/LoginForm.vue')
 //首页
 const indexForm = () => import('../views/indexForm.vue')
+// 主页
+// const HomeFrom = () => import('../views/HomeFrom.vue')
 
 const routes = [
     {
@@ -14,9 +16,14 @@ const routes = [
     {
         path: '/index',
         name: 'indexForm',
+        redirect:'/home',
         component:indexForm,
         children:[
-
+            {
+                path: '/home',
+                name: '/home',
+                component: () => import('../views/HomeFrom.vue')
+            }
         ]
     }
 ]

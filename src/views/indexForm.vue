@@ -1,39 +1,74 @@
 <template>
-  <el-container class="layout-container-demo" style="height:100%">
-    <el-aside width="200px" >
-      <el-scrollbar>
-        <el-menu   background-color="#6495ED"
-                   text-color="white"
-                   :router="true"
-                   :unique-opened="true"
-                   active-text-color="#FFDEAD">
-          <el-sub-menu
-              v-for="item in menu_catalogs"
-              :key = "item.id"
-              :index = "item.id + ''"
-          >
-            <template v-slot:title>
-              <i
-                  :class="item.icon"
-                  style="font-size: 26px; color: white"
-              >
-                <b style="font-size: 18px"> {{ item.label }}</b>
-              </i>
-            </template>
-            <el-menu-item-group>
-              <el-menu-item
-                  v-for="c in item.children"
-                  :key="c.id"
-                  :index="c.purl"
-              >
-                <i :class="c.icon" style="font-size: 24px"> </i>
-                <b style="font-size: 16px"> {{ c.label }}</b>
-              </el-menu-item>
-            </el-menu-item-group>
-          </el-sub-menu>
-        </el-menu>
-      </el-scrollbar>
-    </el-aside>
+  <el-container class="layout-container-demo" style="height:100vb">
+    <el-header style="text-align: right; font-size: 12px;height: 80px" class="el_header" >
+      <div class="toolbar">
+        <el-dropdown>
+          <el-icon style="margin-right: 8px; margin-top: 1px;width:50px;height:50px;">
+            <el-avatar
+                :size="50"
+                shape="square"
+                :src="BaseApi + circleUrl"
+            >
+            </el-avatar>
+          </el-icon>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item @click="informationBtn('个人资料完善')">个人资料完善</el-dropdown-item>
+              <el-dropdown-item @click="empExit('退出')">退出</el-dropdown-item>
+              <el-dropdown-item @click="logoutVisable('注销')">注销</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+        <b
+            style="
+            font-size: 24px;
+            color: white;
+         "
+        >
+          {{isAdmin ? "管理员 " : "用户 "}}
+          {{ loginName }}</b
+        >
+      </div>
+    </el-header>
+    <el-container>
+      <el-aside width="200px" style="height:100vb ;background-color: #6495ED">
+        <el-scrollbar>
+          <el-menu   background-color="#6495ED"
+                     text-color="white"
+                     :router="true"
+                     :unique-opened="true"
+                     active-text-color="#FFDEAD">
+            <el-sub-menu
+                v-for="item in menu_catalogs"
+                :key = "item.id"
+                :index = "item.id + ''"
+            >
+              <template v-slot:title>
+                <i
+                    :class="item.icon"
+                    style="font-size: 26px; color: white"
+                >
+                  <b style="font-size: 18px"> {{ item.label }}</b>
+                </i>
+              </template>
+              <el-menu-item-group>
+                <el-menu-item
+                    v-for="c in item.children"
+                    :key="c.id"
+                    :index="c.purl"
+                >
+                  <i :class="c.icon" style="font-size: 24px"> </i>
+                  <b style="font-size: 16px"> {{ c.label }}</b>
+                </el-menu-item>
+              </el-menu-item-group>
+            </el-sub-menu>
+          </el-menu>
+        </el-scrollbar>
+      </el-aside>
+      <el-main>
+        <router-view />
+      </el-main>
+    </el-container>
     <el-dialog title="注销账户" v-model="logoutVisable" width="70%">
       <el-form
           :model="logoutform"
@@ -60,46 +95,14 @@
         </el-form-item>
       </el-form>
     </el-dialog>
-    <el-container>
-      <el-header style="text-align: right; font-size: 12px" class="el_header">
-        <div class="toolbar">
-          <el-dropdown>
-            <el-icon style="margin-right: 8px; margin-top: 1px;width:20px;height:20px;">
-              <setting style="margin-right: 8px; margin-top: 1px;"></setting>
-            </el-icon>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item @click="informationBtn('个人资料完善')">个人资料完善</el-dropdown-item>
-                <el-dropdown-item @click="empExit('退出')">退出</el-dropdown-item>
-                <el-dropdown-item @click="logoutVisable('注销')">注销</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-          <span>Tom</span>
-        </div>
-      </el-header>
-
-      <el-main>
-        <el-scrollbar>
-          <el-table :data="tableData">
-            <el-table-column prop="date" label="Date" width="140" />
-            <el-table-column prop="name" label="Name" width="120" />
-            <el-table-column prop="address" label="Address" />
-          </el-table>
-        </el-scrollbar>
-      </el-main>
-    </el-container>
   </el-container>
 </template>
 <script>
 import {ref,onMounted} from 'vue';
 import {useStore} from 'vuex'
-// import { loginEmp } from "@/assets/js/auth"
-import {Setting} from "@element-plus/icons-vue";
 import { ajaxGet, ajaxPost, popup } from "@/assets/js/common";
+import {loginEmp} from "@/assets/js/auth";
 export default {
-  // UI 组件
-  components: {Setting},
 
   setup() {
     const sotre = useStore()
@@ -109,6 +112,7 @@ export default {
     const menu_catalogs = ref([])
     const isAdmin = ref('');
     const loginName = ref('');
+    const circleUrl = loginEmp().headImg
 
     const rules = {
       content: [
@@ -121,15 +125,13 @@ export default {
     };
     // 初始化函数
     const init = async () => {
-      // isAdmin.value = loginEmp().isAdmin;
-      // loginName.value = loginEmp().nickName;
+      isAdmin.value = loginEmp().isAdmin;
+      loginName.value = loginEmp().nickName;
       try {
           ajaxGet('/empMenu', {}).then((res) =>{
             const res1 = res.data
-            console.log(res1,"222222")
             if (res1?.code === 200) {
             menu_catalogs.value = res1.data;
-            console.log(menu_catalogs.value,"222222")
           } else {
             // 如果状态码不是200，可以打印错误信息或进行其他处理
             console.error("获取菜单失败，状态码：",res1?.data.code);
@@ -152,7 +154,8 @@ export default {
       menu_catalogs,
       rules,
       isAdmin,
-      loginName
+      loginName,
+      circleUrl
     }
   }
 }
@@ -160,7 +163,7 @@ export default {
 <style scoped>
 .layout-container-demo .el-header {
   position: relative;
-  background-color: var(--el-color-primary-light-7);
+  background-color: #6495ED;
   color: var(--el-text-color-primary);
 }
 .layout-container-demo .el-aside {
@@ -182,7 +185,6 @@ export default {
 }
 /*修改*/
 .el_header {
-  background-color: #6495ED;
   color: #333;
   border-bottom: 1px black solid;
   height: 50px;
