@@ -128,13 +128,13 @@ export default {
       isAdmin.value = loginEmp().isAdmin;
       loginName.value = loginEmp().nickName;
       try {
-          ajaxGet('/empMenu', {}).then((res) =>{
-            const res1 = res.data
-            if (res1?.code === 200) {
-            menu_catalogs.value = res1.data;
+          ajaxGet('/empMenu', {}).then((res1) =>{
+            const res = res1.data
+            if (res?.code === 200) {
+            menu_catalogs.value = res.data;
           } else {
             // 如果状态码不是200，可以打印错误信息或进行其他处理
-            console.error("获取菜单失败，状态码：",res1?.data.code);
+            console.error("获取菜单失败，状态码：",res?.data.code);
           }
         })
       } catch (error) {
