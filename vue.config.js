@@ -1,5 +1,6 @@
 const path = require('path');
 module.exports = {
+    lintOnSave: false,
     publicPath:process.env["VITE_APP_ENV "]==='production' ? '.' : '/',
     configureWebpack: {
         resolve: {

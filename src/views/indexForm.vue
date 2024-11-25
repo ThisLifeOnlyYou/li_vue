@@ -102,6 +102,8 @@ import {ref,onMounted} from 'vue';
 import {useStore} from 'vuex'
 import { ajaxGet, ajaxPost, popup } from "@/assets/js/common";
 import {loginEmp} from "@/assets/js/auth";
+import { useRouter } from 'vue-router';
+
 export default {
 
   setup() {
@@ -112,8 +114,8 @@ export default {
     const menu_catalogs = ref([])
     const isAdmin = ref('');
     const loginName = ref('');
-    const circleUrl = loginEmp().headImg
-
+    const circleUrl = loginEmp().headImg;
+    const router = useRouter()
     const rules = {
       content: [
         {
@@ -133,13 +135,16 @@ export default {
             if (res?.code === 200) {
             menu_catalogs.value = res.data;
           } else {
-            // 如果状态码不是200，可以打印错误信息或进行其他处理
             console.error("获取菜单失败，状态码：",res?.data.code);
           }
         })
       } catch (error) {
         console.error('Failed to fetch menu:', error);
       }
+    };
+    const informationBtn = async () => {
+      await router.push("/personal/informationFrom");
+      popup("请完善个人的资料");
     };
     onMounted(() => {
       init();
@@ -155,7 +160,8 @@ export default {
       rules,
       isAdmin,
       loginName,
-      circleUrl
+      circleUrl,
+      informationBtn
     }
   }
 }
