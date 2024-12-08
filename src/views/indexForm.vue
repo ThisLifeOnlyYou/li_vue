@@ -143,7 +143,7 @@ export default {
       }
     };
     const informationBtn = async () => {
-      await router.push("/personal/informationFrom");
+      await router.push("/personal/information");
       popup("请完善个人的资料");
     };
     onMounted(() => {

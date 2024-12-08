@@ -34,7 +34,6 @@ function refreshCookies() {
         })
     }
     return token;
-
 }
 
 /*post请求*/
