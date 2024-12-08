@@ -16,6 +16,11 @@ const routes = [
         component: LoginForm
     },
     {
+        path: '/',
+        name: '/', // 通常我们会使用大写字母开头的驼峰命名法来命名路由名称
+        component: LoginForm
+    },
+    {
         path: '/index',
         name: 'indexForm',
         redirect:'/home',
