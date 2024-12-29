@@ -131,12 +131,16 @@ export default {
       loginName.value = loginEmp().nickName;
       try {
           ajaxGet('/empMenu', {}).then((res1) =>{
-            const res = res1.data
-            if (res?.code === 200) {
-            menu_catalogs.value = res.data;
-          } else {
-            console.error("获取菜单失败，状态码：",res?.data.code);
-          }
+            if (res1) {
+              const res = res1.data
+              if (res?.code === 200) {
+                menu_catalogs.value = res.data;
+              } else {
+                console.error("获取菜单失败，状态码：",res?.data.code);
+              }
+            } else {
+              router.push("/LoginForm");
+            }
         })
       } catch (error) {
         console.error('Failed to fetch menu:', error);

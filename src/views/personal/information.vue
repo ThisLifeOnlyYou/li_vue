@@ -11,7 +11,6 @@
       <br/>
       <el-form
           :model="informationForm"
-          :rules="rules"
           ref="informationForm"
           label-width="100px"
           class="demo-form-inline"
@@ -25,14 +24,7 @@
                   :on-success="handleAvatarSuccess"
                   :before-upload ="beforeAvatarUpload"
               >
-                <img
-                v-if="imageUrl"
-                :src="BaseApi + imageUrl"
-                class="avatar-uploader"
-                >
-                <i v-else
-                   class="el-icon-plus avatar-uploader-icon">
-                </i>
+                <img src="public/favicon.ico">
               </el-upload>
             </el-form-item>
           </el-col>
@@ -137,6 +129,16 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-form-item>
+          <el-button
+              type="primary"
+              @click="submitInformationForm('informationForm')">
+            提交
+          </el-button>
+          <el-button @click="resetForm(informationForm)">
+            重制
+          </el-button>
+        </el-form-item>
       </el-form>
     </i>
   </div>
@@ -146,26 +148,18 @@ import {onMounted, ref} from "vue";
 import {useStore} from 'vuex'
 import { popup } from "@/assets/js/common";
 import {listByQo} from "@/api/personnel_management/department/deptApi"
+import {update} from "@/api/personnel_management/employee/empApi"
 import {queryInformation} from "@/api/personal/presonAPi";
+import router from "@/router";
 
 export default {
   setup(){
-    const sotre = useStore()
+    const store = useStore()
     const informationForm = ref({})
-    const rules = ref({
-      nickName: [
-        {
-          required: true,
-          message: "姓名不能为空",
-          trigger: "blur",
-        },
-      ],
-    },)
-
     const handleAvatarSuccess = ref({})
     const beforeAvatarUpload = ref({})
     const imageUrl = ref("")
-    const BaseApi = sotre.state.BaseApi
+    const BaseApi = store.state.BaseApi
     const options = ref([])
     const selectedDeptName = ref('')
     const nickName = ref('')
@@ -195,25 +189,52 @@ export default {
     const init = async () => {
       try {
         queryInformation({}).then((ref)=>{
-          ref = ref.data
-          if (ref.code === 200) {
-            informationForm.value = ref.data
-            nickName.value = informationForm.value.nickName
-            username.value = informationForm.value.username
-            idCard.value = informationForm.value.idCard
-            age.value = informationForm.value.age
-            address.value = informationForm.value.address
-            info.value = informationForm.value.info
-            sex.value =informationForm.value.sex
+          if (ref) {
+            ref = ref.data
+            if (ref.code === 200) {
+              informationForm.value = ref.data
+              nickName.value = informationForm.value.nickName
+              username.value = informationForm.value.username
+              idCard.value = informationForm.value.idCard
+              age.value = informationForm.value.age
+              address.value = informationForm.value.address
+              info.value = informationForm.value.info
+              sex.value =informationForm.value.sex
+            } else {
+              popup(ref.msg, "error");
+            }
           } else {
-            popup(ref.msg, "error");
+            router.push("/LoginForm");
           }
         })
       } catch (error) {
         console.error('Failed to fetch menu:', error);
       }
     }
-
+    // 提交个人信息
+    const submitInformationForm  = async () => {
+      try {
+        update({informationForm}).then((res)=>{
+          if (res) {
+            res = res.data;
+            if (res.code === 200) {
+              popup(res.msg, "更新成功");
+            }  else {
+              popup(res.msg, "更新失败");
+            }
+          }
+        })
+      } catch (error) {
+        popup("error", error);
+      }
+    }
+    // 重制个人信息
+    const resetForm = () => {
+      if (informationForm.value) {
+        informationForm.value.resetFields();
+      }
+      init();
+    }
 
     onMounted(() => {
       init();
@@ -221,7 +242,8 @@ export default {
     });
     return {
       informationForm,
-      rules,
+      submitInformationForm,
+      resetForm,
       handleAvatarSuccess,
       beforeAvatarUpload,
       imageUrl,

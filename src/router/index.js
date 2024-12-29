@@ -8,6 +8,8 @@ const indexForm = () => import('../views/indexForm.vue')
 const HomeFrom = () => import('../views/HomeFrom.vue')
 //完善个人资料
 const information = () => import('../views/personal/information.vue')
+// 修改密码
+const edit_pwd =() => import('../views/personal/Edit_pwd.vue')
 
 const routes = [
     {
@@ -16,8 +18,8 @@ const routes = [
         component: LoginForm
     },
     {
-        path: '/',
-        name: '/', // 通常我们会使用大写字母开头的驼峰命名法来命名路由名称
+        path: '/LoginForm',
+        name: 'LoginForm', // 通常我们会使用大写字母开头的驼峰命名法来命名路由名称
         component: LoginForm
     },
     {
@@ -35,6 +37,11 @@ const routes = [
                 path: '/personal/information',
                 name: '/personal/information',
                 component:information
+            },
+            {
+                path: '/personal/edit_pwd',
+                name: '/personal/edit_pwd',
+                component:edit_pwd
             }
         ]
     }
