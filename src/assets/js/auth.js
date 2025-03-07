@@ -29,10 +29,8 @@ export function loginEmp() {
   try {
     // 尝试解析 JSON 字符串
     let employee = JSON.parse(str);
-    return {
-      success: true,
-      data: employee
-    };
+    console.log(employee);
+    return employee;
   } catch (e) {
     // 如果解析失败，返回一个包含错误信息的对象
     return {

@@ -2,14 +2,21 @@
   <el-container class="layout-container-demo" style="height:100vb">
     <el-header style="text-align: right; font-size: 12px;height: 80px" class="el_header" >
       <div class="toolbar">
+        <div style="font-size: 26px; color: white; text-align: center ;position: absolute;left: 10px">
+          <el-icon><HomeFilled />
+          </el-icon>
+          <span style="font-size: 26px; text-align: center; ">
+            超市管理系统
+          </span>
+        </div>
         <el-dropdown>
           <el-icon style="margin-right: 8px; margin-top: 1px;width:50px;height:50px;">
-            <el-avatar
+            <el-aviatar
                 :size="50"
                 shape="square"
                 :src="BaseApi + circleUrl"
             >
-            </el-avatar>
+            </el-aviatar>
           </el-icon>
           <template #dropdown>
             <el-dropdown-menu>
@@ -101,10 +108,13 @@
 import {ref,onMounted} from 'vue';
 import {useStore} from 'vuex'
 import { ajaxGet, ajaxPost, popup } from "@/assets/js/common";
-import {loginEmp} from "@/assets/js/auth";
+import {loginEmp,clearCookie} from "@/assets/js/auth";
 import { useRouter } from 'vue-router';
+import {ElMessageBox} from "element-plus";
+import {HomeFilled} from "@element-plus/icons-vue";
 
 export default {
+  components: {HomeFilled},
 
   setup() {
     const sotre = useStore()
@@ -115,6 +125,7 @@ export default {
     const isAdmin = ref('');
     const loginName = ref('');
     const circleUrl = loginEmp().headImg;
+    console.log(BaseApi,circleUrl,"circleUrlqqq")
     const router = useRouter()
     const rules = {
       content: [
@@ -146,10 +157,54 @@ export default {
         console.error('Failed to fetch menu:', error);
       }
     };
+    // 个人资料
     const informationBtn = async () => {
       await router.push("/personal/information");
       popup("请完善个人的资料");
     };
+    // 退出
+    const empExit = async () => {
+      try {
+        await ElMessageBox.confirm("确定退出吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(async () => {
+        await ajaxGet('/exit',{}).then(res => {
+          const res1 = res.data
+          if (res1.code === 200) {
+            popup("退出成功，请重新登录",);
+            clearCookie("token");
+            clearCookie("employee");
+            router.push("/LoginForm");
+          } else {
+            popup("退出失败，请重试");
+          }
+        })
+      }).catch(()=>{
+        ElMessageBox.close();
+      })
+      } catch (error) {
+        popup("退出失败，请重试");
+      }
+    };
+
+    // 注销
+    const logoutSubmit = async (formName) => {
+      await ajaxPost('/logout', { content: logoutform.value.content }).then(
+        (res) => {
+          if (res.code === 200) {
+            popup("注销成功，请重新登录");
+            router.push("/LoginForm");
+          } else {
+            popup("注销失败，请重试");
+          }
+        }
+      );
+    };
+    const logoutCel = (formName) => {
+      logoutVisable.value = false;
+      };
     onMounted(() => {
       init();
     });
@@ -165,7 +220,10 @@ export default {
       isAdmin,
       loginName,
       circleUrl,
-      informationBtn
+      informationBtn,
+      empExit,
+      logoutSubmit,
+      logoutCel,
     }
   }
 }

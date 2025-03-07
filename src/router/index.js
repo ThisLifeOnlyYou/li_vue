@@ -1,4 +1,3 @@
-// router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
 //登录
 const LoginForm = () => import('../views/LoginForm.vue')
@@ -10,16 +9,17 @@ const HomeFrom = () => import('../views/HomeFrom.vue')
 const information = () => import('../views/personal/information.vue')
 // 修改密码
 const edit_pwd =() => import('../views/personal/Edit_pwd.vue')
-
+//销售主页
+const sale_home = () => import('../views/sale_management/sale_cmd/List.vue')
 const routes = [
     {
         path: '/',
-        name: 'LoginForm', // 通常我们会使用大写字母开头的驼峰命名法来命名路由名称
+        name: '/',
         component: LoginForm
     },
     {
         path: '/LoginForm',
-        name: 'LoginForm', // 通常我们会使用大写字母开头的驼峰命名法来命名路由名称
+        name: 'LoginForm',
         component: LoginForm
     },
     {
@@ -42,6 +42,11 @@ const routes = [
                 path: '/personal/edit_pwd',
                 name: '/personal/edit_pwd',
                 component:edit_pwd
+            },
+            {
+                path: '/sale_management/sale_cmd/list',
+                name: '/sale_management/sale_cmd/list',
+                component:sale_home
             }
         ]
     }

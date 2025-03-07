@@ -2,7 +2,7 @@
   <div>
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>个人中心 </el-breadcrumb-item>
+      <el-breadcrumb-item>个人中心</el-breadcrumb-item>
       <el-breadcrumb-item>个人资料</el-breadcrumb-item>
     </el-breadcrumb>
     <i class="el-icon-circle el-icon-arrow-right" style="font-size:32px">
@@ -15,6 +15,7 @@
           label-width="100px"
           class="demo-form-inline"
       >
+        <!--        todo: 上传头像 -->
         <el-row>
           <el-col :span="24">
             <el-form-item style="margin-top:20px">
@@ -22,13 +23,14 @@
                   class="upload-demo"
                   :show-file-list="false"
                   :on-success="handleAvatarSuccess"
-                  :before-upload ="beforeAvatarUpload"
+                  :before-upload="beforeAvatarUpload"
               >
                 <img src="public/favicon.ico">
               </el-upload>
             </el-form-item>
           </el-col>
         </el-row>
+        <!--        todo: 手机号&姓名&身份证号-->
         <el-row>
           <el-col :span="12">
             <el-form-item
@@ -55,6 +57,7 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <!--        todo: 年龄&身份证号-->
         <el-row>
           <el-col :span="12">
             <el-form-item
@@ -79,6 +82,7 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <!--        todo: 所属部门&住址-->
         <el-row>
           <el-col :span="12">
             <el-form-item
@@ -103,11 +107,12 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <!--        todo: 备注&性别-->
         <el-row>
           <el-col :span="12">
             <el-form-item style="width: 40%" label="备注：">
               <el-input
-                 type="textarea"
+                  type="textarea"
                   cols="50"
                   rows="3"
                   v-model="info"
@@ -129,6 +134,7 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <!--        todo: 提交&重制-->
         <el-form-item>
           <el-button
               type="primary"
@@ -146,14 +152,14 @@
 <script>
 import {onMounted, ref} from "vue";
 import {useStore} from 'vuex'
-import { popup } from "@/assets/js/common";
+import {popup} from "@/assets/js/common";
 import {listByQo} from "@/api/personnel_management/department/deptApi"
 import {update} from "@/api/personnel_management/employee/empApi"
 import {queryInformation} from "@/api/personal/presonAPi";
 import router from "@/router";
 
 export default {
-  setup(){
+  setup() {
     const store = useStore()
     const informationForm = ref({})
     const handleAvatarSuccess = ref({})
@@ -168,15 +174,15 @@ export default {
     const age = ref('')
     const address = ref('')
     const info = ref('')
-    const sex  = ref('')
+    const sex = ref('')
     // 获取仓库信息
-    const deptAll = async () =>{
+    const deptAll = async () => {
       try {
-        listByQo({}).then((res)=>{
+        listByQo({}).then((res) => {
           res = res.data;
           if (res.code === 200) {
             options.value = res.data;
-            selectedDeptName.value =options.value[0].name
+            selectedDeptName.value = options.value[0].name
           } else {
             popup(res.msg, "error");
           }
@@ -188,7 +194,7 @@ export default {
     // 获取个人信息
     const init = async () => {
       try {
-        queryInformation({}).then((ref)=>{
+        queryInformation({}).then((ref) => {
           if (ref) {
             ref = ref.data
             if (ref.code === 200) {
@@ -199,7 +205,7 @@ export default {
               age.value = informationForm.value.age
               address.value = informationForm.value.address
               info.value = informationForm.value.info
-              sex.value =informationForm.value.sex
+              sex.value = informationForm.value.sex
             } else {
               popup(ref.msg, "error");
             }
@@ -211,15 +217,15 @@ export default {
         console.error('Failed to fetch menu:', error);
       }
     }
-    // 提交个人信息
-    const submitInformationForm  = async () => {
+    // todo: 提交个人信息
+    const submitInformationForm = async () => {
       try {
-        update({informationForm}).then((res)=>{
+        update({informationForm}).then((res) => {
           if (res) {
             res = res.data;
             if (res.code === 200) {
               popup(res.msg, "更新成功");
-            }  else {
+            } else {
               popup(res.msg, "更新失败");
             }
           }
