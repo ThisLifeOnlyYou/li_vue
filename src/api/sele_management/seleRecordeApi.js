@@ -8,3 +8,7 @@ export function getCn(params) {
 export function getOptionSaleRecordsGoods(params) {
     return ajaxGet(apiPrefix+"/getOptionSaleRecordsGoods", params);
 }
+//支付
+export function saveSaleRecords(data) {
+    return ajaxJson(apiPrefix + "/saveSaleRecords", data)
+}

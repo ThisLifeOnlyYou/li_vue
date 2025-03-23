@@ -34,7 +34,7 @@
         </button>
       </el-col>
     </div>
-    <!--    todo: 购物结账弹窗-->
+    <!--todo: 购物结账弹窗-->
     <el-dialog title="销售商品" v-model="newVisable" width="80%">
       <el-form
           :model="newForm"
@@ -42,7 +42,7 @@
           ref="newForm"
           label-width="100px"
       >
-        <!--        todo: 商品编号-->
+        <!-- todo: 商品编号-->
         <el-row>
           <el-col :span="24">
             <el-form-item label="销售编号" style="width: 60%">
@@ -53,7 +53,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <!--       todo: 支付方式-->
+        <!--todo: 支付方式-->
         <el-row>
           <el-col :span="24">
             <el-form-item
@@ -87,7 +87,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <!--        todo: 顾客类型-->
+        <!--todo: 顾客类型-->
         <el-row>
           <el-col :span="24">
             <el-form-item
@@ -131,7 +131,7 @@
           </el-col>
         </el-row>
         <el-divider/>
-        <!--        todo: 添加商品-->
+        <!--todo: 添加商品-->
         <el-row>
           <el-col
               :span="24"
@@ -146,7 +146,8 @@
             <el-table
                 :data="newForm.detailSaleRecords"
                 style="width: 100%"
-               size="small"
+                size="small"
+                empty-text="暂无数据"
             >
               <el-table-column
                   label="商品编号"
@@ -163,11 +164,11 @@
                   prop="goodsNum"
               >
                 <template
-                    v-if="!newForm.sellTotal"
+                    v-if="!newForm.sellTime"
                     v-slot="scope"
                 >
                   <el-button type="success"
-                      @click="redueGoodsNum(scope.row)">-
+                             @click="redueGoodsNum(scope.row)">-
                   </el-button>
                   <el-input
                       readonly
@@ -177,9 +178,9 @@
                       min="1"
                       :max="scope.row.residueNum"
                   >
-                    </el-input>
+                  </el-input>
                   <el-button type="success"
-                      @click="addGoodsNum(scope.row)">
+                             @click="addGoodsNum(scope.row)">
                     +
                   </el-button>
                 </template>
@@ -205,7 +206,7 @@
           </el-col>
         </el-row>
         <br/>
-        <!--        todo: 备注-->
+        <!--todo: 备注-->
         <el-row>
           <el-col :span="24">
             <el-form-item label="备注：" style="width: 90%">
@@ -278,7 +279,7 @@
         <el-form-item label="商品单价" class="center-item">
           <el-input
               disabled
-              v-model="detailSaleRecords.purchashPrice"
+              v-model="detailSaleRecords.goodsPrice"
               placeholder="单价"
           ></el-input>
         </el-form-item>
@@ -297,7 +298,8 @@ import {queryGoodsById} from "@/api/goods_management/goods/goodsApi"
 import {queryMemberByPhone} from "@/api/member_management/member/memberAPI"
 import {
   getCn,
-  getOptionSaleRecordsGoods
+  getOptionSaleRecordsGoods,
+  saveSaleRecords
 } from "@/api/sele_management/seleRecordeApi"
 
 export default {
@@ -314,8 +316,7 @@ export default {
         sellTotal: "",
         sellTotalmoney: "",
         type: "0",
-        memberPhone: "",
-        init: "",
+        info: "",
         detailSaleRecords: [],
       },
       rules: {
@@ -396,7 +397,7 @@ export default {
           parseInt(this.newForm.sellTotal) - parseInt(row.goodsNum);
       this.totalMoney = (
           parseFloat(this.totalMoney) - parseFloat(parseInt(row.goodsNum)
-            * parseFloat(row.goodsPrice))
+              * parseFloat(row.goodsPrice))
       ).toFixed(2);
       if (this.newForm.type === "1") {
         this.newForm.sellTotalmoney =
@@ -409,30 +410,84 @@ export default {
     },
     // 增加商品数量
     addGoodsNum(row) {
-      console.log(row.goodsNum, row.residueNum, "库存数量");
-      if (parseInt(row.goodsNum) >= row.residueNum) {
-        popup("库存数量不足", "warning")
-        return
-      }
-      row.goodsNum = parseInt(row.goodsNum) + 1;
-      this.newForm.sellTotal =
-          parseInt(this.newForm.sellTotal) + parseInt(row.goodsNum);
-      this.totalMoney = (
-          parseFloat(this.totalMoney) + parseFloat(parseInt(row.goodsNum)
-            * parseFloat(row.goodsPrice))
-      ).toFixed(2);
-      if (this.newForm.type === "1") {
-        this.newForm.sellTotalmoney =
-            parseFloat(this.totalMoney) * (0.9).toFixed(2);
-      } else {
-        this.newForm.sellTotalmoney = parseFloat(
-            this.totalMoney
-        ).toFixed(2);
-      }
+      queryGoodsById({ id: row.goodsId }).then((res) => {
+        res = res.data;
+        if (res.code == 200) {
+          if (row.goodsNum >= res.data.residueNum) {
+            popup(
+                "货架商品数量没这么多，请联系仓库管理者",
+                "warning"
+            );
+            return;
+          } else {
+            row.goodsNum = parseInt(row.goodsNum) + 1;
+            this.newForm.sellTotal =
+                parseInt(this.newForm.sellTotal) + 1;
+            this.totalMoney = (
+                parseFloat(this.totalMoney) +
+                parseFloat(row.goodsPrice)
+            ).toFixed(2);
+            if (this.newForm.type == "1") {
+              this.newForm.sellTotalmoney =
+                  parseFloat(this.totalMoney) * (0.9).toFixed(2);
+            } else {
+              this.newForm.sellTotalmoney = parseFloat(
+                  this.totalMoney
+              ).toFixed(2);
+            }
+          }
+        } else {
+          popup(res.msg, "error");
+          return;
+        }
+      });
     },
     //   提交表单
     submitNewForm(formName) {
-      console.log(formName, "提交表单");
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.newForm.sellTotal = this.newForm.detailSaleRecords.reduce((total, item) => {
+            return total + parseInt(item.goodsNum);
+          }, 0);
+          console.log(this.newForm.sellTotal,"ss111111111111");
+          // 计算商品总价会员09折
+          if (this.newForm.type === "1") {
+            this.newForm.sellTotalmoney =
+                (this.newForm.detailSaleRecords.reduce((total, item) => {
+                  return total + parseFloat(item.goodsNum) * parseFloat(item.goodsPrice);
+                }, 0) * 0.9).toFixed(2);
+            console.log(this.newForm.sellTotalmoney,"ss222222222222");
+          } else {
+            this.newForm.sellTotalmoney = this.newForm.detailSaleRecords.reduce((total, item) => {
+              return total + parseFloat(item.goodsNum) * parseFloat(item.goodsPrice);
+            }, 0).toFixed(2);
+          }
+          console.log(this.newForm.sellTotalmoney,"sssssssssssss");
+          if (this.newForm.sellTotalmoney <= 0) {
+            popup("商品总价不能为0", "warning");
+            return;
+          }
+          // 提交表单
+          saveSaleRecords(this.newForm).then(res => {
+            try {
+              if (res) {
+                res = res.data;
+                if (res.code === 200) {
+                  popup("支付成功", "success");
+                  this.closeNewForm(formName);
+                } else {
+                  popup(res.msg, "error");
+                }
+              }
+            } catch (error) {
+              popup(res.msg, "error");
+            }
+          });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
     },
     // 关闭表单
     closeNewForm(formName) {
@@ -452,7 +507,6 @@ export default {
     // 关闭添加商品弹窗
     closeAddForm() {
       this.addVisable = false;
-      console.log(this.addVisable, "关闭添加商品弹窗");
     },
     //添加商品
     addGoods() {
@@ -492,10 +546,9 @@ export default {
           if (res) {
             res = res.data;
             if (res.code === 200) {
-              this.detailSaleRecords.residueNum = res.data.residueNum;
-              this.detailSaleRecords.goodsName = res.data.name;
+
               this.detailSaleRecords.goodsPrice = res.data.purchashPrice;
-              this.detailSaleRecords.purchashPrice = res.data.purchashPrice;
+              this.detailSaleRecords.goodsName = res.data.name;
               this.goodsNum_max = res.data.residueNum;
             } else {
               this.$message.error(res.msg || "商品信息查询失败");
@@ -506,7 +559,7 @@ export default {
         }
       });
     },
-  //   移除商品
+    //   移除商品
     removedetailRecords(row) {
       this.$confirm("确定删除这条记录？", "警示", {
         confirmButtonText: "确定",
@@ -547,7 +600,6 @@ export default {
             });
           });
     },
-
   },
 }
 </script>
@@ -608,4 +660,4 @@ export default {
   width: 60%; /* 设置宽度 */
   text-align: center; /* 文本居中 */
 }
-</style>`
+</style>
