@@ -406,6 +406,7 @@ export default {
         this.newForm.sellTotalmoney = parseFloat(
             this.totalMoney
         ).toFixed(2);
+
       }
     },
     // 增加商品数量
