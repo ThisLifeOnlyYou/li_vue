@@ -465,7 +465,7 @@ export default {
           }
           console.log(this.newForm.sellTotalmoney,"sssssssssssss");
           if (this.newForm.sellTotalmoney <= 0) {
-            popup("商品总价不能为0", "warning");
+            popup("商品数量不能为0", "warning");
             return;
           }
           // 提交表单
