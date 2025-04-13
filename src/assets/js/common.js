@@ -112,10 +112,10 @@ export function popup(msg, type) {
         case "error":
             ElMessage.error({message: msg, duration: 5000, showClose: true});
             break;
-        case "info":
-            ElMessage.info(msg);
+        case "success":
+            ElMessage.success(msg);
             break;
         default:
-            ElMessage.success(msg);
+            ElMessage.info(msg);
     }
 }

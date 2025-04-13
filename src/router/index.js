@@ -11,6 +11,8 @@ const information = () => import('../views/personal/information.vue')
 const edit_pwd =() => import('../views/personal/Edit_pwd.vue')
 //销售主页
 const sale_home = () => import('../views/sale_management/sale_cmd/List.vue')
+// 销售记录
+const sale_record = () => import('../views/sale_management/sale_records/List.vue')
 const routes = [
     {
         path: '/',
@@ -47,6 +49,11 @@ const routes = [
                 path: '/sale_management/sale_cmd/list',
                 name: '/sale_management/sale_cmd/list',
                 component:sale_home
+            },
+            {
+                path: '/sale_management/sale_records/list',
+                name: '/sale_management/sale_records/list',
+                component:sale_record
             }
         ]
     }

@@ -1,4 +1,5 @@
-`<template xmlns="http://www.w3.org/1999/html">
+`
+<template xmlns="http://www.w3.org/1999/html">
   <div id="sale_cmd">
     <div class="head">
       <i style="font-size: 50px; padding-top: 10px; " class="el-icon-s-tools"></i>
@@ -19,18 +20,18 @@
           积分兑换
         </button>
       </el-col>
-      <!--    todo: 购物结账-->
+      <!--    todo: 销售记录-->
       <el-col :span="12">
-        <button @click="handleClick">
+        <button @click="saleRecordBtn">
           <i style="font-size: 32px; margin-right: 10px;"></i>
-          购物结账
+          销售记录
         </button>
       </el-col>
-      <!--    todo: 积分兑换-->
+      <!--    todo: 兑换记录-->
       <el-col :span="12">
-        <button @click="handleClick">
+        <button @click="exchangeRecordBtn">
           <i style="font-size: 32px; margin-right: 10px;"></i>
-          积分兑换
+          兑换记录
         </button>
       </el-col>
     </div>
@@ -163,26 +164,18 @@
                   label="数量"
                   prop="goodsNum"
               >
-                <template
-                    v-if="!newForm.sellTime"
-                    v-slot="scope"
-                >
-                  <el-button type="success"
-                             @click="redueGoodsNum(scope.row)">-
-                  </el-button>
+                <template v-slot="scope">
+                  <el-button type="success" @click="redueGoodsNum(scope.row)">-</el-button>
                   <el-input
                       readonly
                       type="text"
-                      v-model="detailSaleRecords.goodsNum"
+                      v-model="scope.row.goodsNum"
                       style="width: 100px"
                       min="1"
                       :max="scope.row.residueNum"
                   >
                   </el-input>
-                  <el-button type="success"
-                             @click="addGoodsNum(scope.row)">
-                    +
-                  </el-button>
+                  <el-button type="success" @click="addGoodsNum(scope.row)">+</el-button>
                 </template>
               </el-table-column>
               <el-table-column
@@ -198,7 +191,8 @@
                   <el-button
                       @click="removedetailRecords(scope.row)"
                       type="danger"
-                  >移除</el-button
+                  >移除
+                  </el-button
                   >
                 </template>
               </el-table-column>
@@ -212,7 +206,7 @@
             <el-form-item label="备注：" style="width: 90%">
               <el-input
                   type="textarea"
-                  v-model="newForm.init"
+                  v-model="newForm.info"
                   placeholder="如：订单1"></el-input>
             </el-form-item>
           </el-col>
@@ -238,13 +232,13 @@
     <el-dialog title="添加商品" :model-value="addVisable" width="50%">
       <el-form
           :model="detailSaleRecords"
-          :rules="rules"
           ref="detailSaleRecords"
           label-width="100px"
           class="custom-form"
       >
         <!-- 商品下拉框 -->
         <el-form-item label="商品名称" class="center-item">
+
           <el-select
               v-model="detailSaleRecords.goodsId"
               placeholder="请选择商品"
@@ -290,6 +284,126 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+    <!--    todo: 积分兑换弹窗-->
+    <el-dialog title="积分兑换" :model-value="exchangeVisable" width="50%"
+               :show-close=false
+               :close-on-click-modal=false
+               :close-on-press-escape=false>
+      <el-form
+          :model="pointProductsForm"
+          :rules="rules"
+          ref="pointProductsForm"
+          label-width="200px"
+          label-height="80px"
+          class="custom-form"
+      >
+        <!-- 会员账号 -->
+        <el-form-item
+            v-if="!confirmVisiable"
+            label="会员账号"
+            class="center-item"
+            prop="memberId"
+        >
+          <el-select
+              @change="queryOptionsPointProducts"
+              v-model="pointProductsForm.memberId"
+              placeholder="请选择会员"
+              filterable
+              :rules="rules"
+          >
+            <el-option
+                v-for="item in options_member"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <!-- 积分商品 -->
+        <el-form-item
+            v-if="!confirmVisiable"
+            label="积分商品"
+            class="center-item"
+            prop="goodsId"
+        >
+          <el-select
+              @change="queryOptionsMember"
+              v-model="pointProductsForm.goodsId"
+              placeholder="请选择商品"
+              filterable
+
+          >
+            <el-option
+                v-for="item in options_exchangeGoods"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <!-- 二次兑换确认弹窗 -->
+        <el-form-item
+            v-if="confirmVisiable"
+            label="会员账号"
+            class="center-item"
+        >
+          <el-select
+              disabled
+              @change="queryPointProductByMemberId"
+              v-model="pointProductsForm.memberId"
+              placeholder="请选择会员"
+              filterable
+          >
+            <el-option
+                v-for="item in options_member"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item
+            v-if="confirmVisiable"
+            label="积分商品"
+            class="center-item"
+        >
+          <el-select
+              disabled
+              v-model="pointProductsForm.goodsName"
+              placeholder="请选择商品"
+              filterable
+          >
+            <el-option
+                v-for="item in options_member"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item
+            v-if="confirmVisiable"
+            label="积分数"
+            class="center-item"
+        >
+          <el-input
+              disabled
+              v-model="pointProductsForm.integral"
+              placeholder="积分数"
+          ></el-input>
+        </el-form-item>
+        <!-- 兑换按钮 -->
+        <el-form-item class="center-item">
+          <el-button type="success" v-if="!confirmVisiable" @click="exchangePointProducts('pointProductsForm')">兑换
+          </el-button>
+          <el-button type="info" v-if="!confirmVisiable" @click="closeExchangeForm">关闭</el-button>
+          <el-button type="success" v-if="confirmVisiable" @click="confirmExchangePointProducts('pointProductsForm')">
+            确认兑换
+          </el-button>
+          <el-button type="info" v-if="confirmVisiable" @click="closeConfirmForm">关闭</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -301,15 +415,22 @@ import {
   getOptionSaleRecordsGoods,
   saveSaleRecords
 } from "@/api/sele_management/seleRecordeApi"
+import {
+  queryOptionsMember,
+  queryOptionsPointProducts,
+  queryPointProductByGoodsId,
+  queryPointProductBymemberId,
+  saveExchangePointProductRecords
+} from "@/api/sele_management/exchange_point_products/exchangePointProductsApi";
 
 export default {
   data() {
     return {
       newVisable: false,
+      exchangeVisable: false,
       totalMoney: "",
       goodsNum_max: "",
-      detailSaleRecords: {
-      },
+      detailSaleRecords: {},
       newForm: {
         cn: "",
         sellway: "1",
@@ -318,6 +439,14 @@ export default {
         type: "0",
         info: "",
         detailSaleRecords: [],
+      },
+      pointProductsForm: {
+        memberId: "",
+        goodsId: "",
+        coverUrl: "",
+        integral: "",
+        goodsName: "",
+
       },
       rules: {
         sellway: [
@@ -340,10 +469,27 @@ export default {
             message: "会员电话号码未填写",
             trigger: "blur"
           }
-        ]
+        ],
+        goodsId: [
+          {
+            required: true,
+            message: "商品名称未填写",
+            trigger: "blur"
+          }
+        ],
+        memberId: [
+          {
+            required: true,
+            message: "会员名称未填写",
+            trigger: "blur"
+          }
+        ],
       },
       addVisable: false,
+      confirmVisiable: false,
       options_saleRecordsAddGoods: [],
+      options_exchangeGoods: [],
+      options_member: [],
     }
   },
   methods: {
@@ -358,6 +504,136 @@ export default {
           popup(res.msg, "error")
         }
       })
+    },
+    // 积分兑换
+    handleClick() {
+      console.log("handleClick");
+      this.exchangeVisable = true;
+      console.log(this.exchangeVisable, "exchangeVisable");
+      this.confirmVisiable = false;
+      this.queryOptionsPointProducts();
+      this.queryOptionsMember();
+    },
+    //会员账号
+    queryOptionsPointProducts() {
+      console.log("queryOptionsPointProducts");
+      queryOptionsPointProducts().then(res => {
+        try {
+          if (res) {
+            res = res.data;
+            if (res.code === 200) {
+              this.options_exchangeGoods = res.data;
+            } else {
+              popup(res.msg, "error")
+            }
+          }
+        } catch (error) {
+          popup(res.msg, "error")
+        }
+      })
+    },
+    // 积分商品
+    queryOptionsMember() {
+      console.log("queryOptionsMember");
+      queryOptionsMember().then(res => {
+        try {
+          if (res) {
+            res = res.data;
+            if (res.code === 200) {
+              this.options_member = res.data;
+            } else {
+              popup(res.msg, "error")
+            }
+          }
+        } catch (error) {
+          popup(res.msg, "error")
+        }
+      })
+    },
+    // 关闭积分兑换弹窗
+    closeExchangeForm() {
+      console.log("closeExchangeForm");
+      this.exchangeVisable = false;
+      this.confirmVisiable = false;
+      this.pointProductsForm = {
+        memberId: "",
+        goodsId: "",
+        coverUrl: "",
+        integral: "",
+      };
+    },
+    // 二次兑换确认弹窗
+    exchangePointProducts(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          queryPointProductByGoodsId({
+            goodsId: this.pointProductsForm.goodsId,
+          }).then((res) => {
+            res = res.data;
+            if (res.code == 200) {
+              console.log(res, "res");
+              if (!res.data) {
+                this.pointProductsForm = {
+                  memberId: this.pointProductsForm.memberId,
+                  coverUrl: "",
+                  integral: "",
+                };
+                return;
+              }
+              this.pointProductsForm.integral = res.data.integral;
+              this.pointProductsForm.coverUrl = res.data.coverUrl;
+              this.pointProductsForm.goodsName = res.data.goodsName;
+            } else {
+              popup(res.msg, "error");
+            }
+          });
+          this.confirmVisiable = true;
+        }
+      })
+    },
+    // 查询商品
+    queryPointProductByMemberId() {
+      queryPointProductBymemberId({
+        memberId: this.pointProductsForm.memberId,
+      }).then((res) => {
+        console.log(memberId, "memberId1");
+        res = res.data;
+        if (res.code == 200) {
+          this.options_pointProducts = res.data;
+          if (!this.options_pointProducts.length) {
+            popup("该会员积分数无法兑换任何商品", "warning");
+            this.pointProductsForm.goodsId = "";
+            return;
+          }
+        } else {
+          popup(res.msg, "error");
+        }
+      });
+    },
+    // 兑换积分商品
+    confirmExchangePointProducts() {
+      saveExchangePointProductRecords({
+            memberId: this.pointProductsForm.memberId,
+            goodsId: this.pointProductsForm.goodsId,
+            integral: this.pointProductsForm.integral,
+            coverUrl: this.pointProductsForm.coverUrl,
+          }
+      ).then(res => {
+        try {
+          if (res) {
+            res = res.data;
+            if (res.code === 200) {
+              popup("兑换成功", "success");
+              this.pointProductsForm = {};
+              this.closeExchangeForm();
+            } else {
+              popup(res.msg, "error");
+            }
+          }
+        } catch (error) {
+          popup(res.msg, "error");
+        }
+      });
     },
     // 会员信息查询
     queryMemberByPhone(phone) {
@@ -388,7 +664,9 @@ export default {
     },
     // 减少商品数量
     redueGoodsNum(row) {
+      console.log("row", row);
       if (parseInt(row.goodsNum) === 1) {
+        console.log("最小数量", row.goodsNum);
         popup("已是最小数量", "warning")
         return
       }
@@ -411,7 +689,7 @@ export default {
     },
     // 增加商品数量
     addGoodsNum(row) {
-      queryGoodsById({ id: row.goodsId }).then((res) => {
+      queryGoodsById({id: row.goodsId}).then((res) => {
         res = res.data;
         if (res.code == 200) {
           if (row.goodsNum >= res.data.residueNum) {
@@ -450,20 +728,20 @@ export default {
           this.newForm.sellTotal = this.newForm.detailSaleRecords.reduce((total, item) => {
             return total + parseInt(item.goodsNum);
           }, 0);
-          console.log(this.newForm.sellTotal,"ss111111111111");
+          console.log(this.newForm.sellTotal, "ss111111111111");
           // 计算商品总价会员09折
           if (this.newForm.type === "1") {
             this.newForm.sellTotalmoney =
                 (this.newForm.detailSaleRecords.reduce((total, item) => {
                   return total + parseFloat(item.goodsNum) * parseFloat(item.goodsPrice);
                 }, 0) * 0.9).toFixed(2);
-            console.log(this.newForm.sellTotalmoney,"ss222222222222");
+            console.log(this.newForm.sellTotalmoney, "ss222222222222");
           } else {
             this.newForm.sellTotalmoney = this.newForm.detailSaleRecords.reduce((total, item) => {
               return total + parseFloat(item.goodsNum) * parseFloat(item.goodsPrice);
             }, 0).toFixed(2);
           }
-          console.log(this.newForm.sellTotalmoney,"sssssssssssss");
+          console.log(this.newForm.sellTotalmoney, "sssssssssssss");
           if (this.newForm.sellTotalmoney <= 0) {
             popup("商品数量不能为0", "warning");
             return;
@@ -502,8 +780,12 @@ export default {
         type: "0",
         memberPhone: "",
         detailSaleRecords: [],
-        init: ""
+        info: ""
       }
+    },
+    // 关闭确认弹窗
+    closeConfirmForm() {
+      this.confirmVisiable = false;
     },
     // 关闭添加商品弹窗
     closeAddForm() {
@@ -511,14 +793,44 @@ export default {
     },
     //添加商品
     addGoods() {
-      if (!this.detailSaleRecords.goodsNum || this.detailSaleRecords.goodsNum === '0') {
-        popup("商品数量不能为0", "warning")
-        return
+      // 1. 检查商品数量
+      if (!this.detailSaleRecords?.goodsNum || this.detailSaleRecords.goodsNum === '0') {
+        popup("商品数量不能为0", "warning");
+        return;
       }
-      if (this.newForm.detailSaleRecords.length === 0) {
-        this.addVisable = false;
-        this.newForm.detailSaleRecords.unshift(this.detailSaleRecords);
+
+      // 2. 确保 detailSaleRecords 存在
+      if (!this.detailSaleRecords || !this.detailSaleRecords.goodsId) {
+        popup("请先选择商品", "warning");
+        return;
       }
+
+      // 3. 确保 newForm.detailSaleRecords 已初始化
+      if (!Array.isArray(this.newForm.detailSaleRecords)) {
+        this.newForm.detailSaleRecords = [];
+      }
+
+      // 4. 检查商品是否已存在
+      const existingIndex = this.newForm.detailSaleRecords.findIndex(
+          item => item.goodsId === this.detailSaleRecords.goodsId
+      );
+
+      if (existingIndex >= 0) {
+        // 商品已存在，更新数量
+        this.newForm.detailSaleRecords[existingIndex].goodsNum =
+            parseInt(this.newForm.detailSaleRecords[existingIndex].goodsNum) +
+            parseInt(this.detailSaleRecords.goodsNum);
+      } else {
+        // 商品不存在，添加新记录
+        this.newForm.detailSaleRecords.unshift({
+          ...this.detailSaleRecords,
+          goodsNum: parseInt(this.detailSaleRecords.goodsNum)
+        });
+      }
+
+      // 5. 关闭弹窗
+      this.addVisable = false;
+
     },
     //   查询商品信息
     getOptionSaleRecordsGoods(formName) {
@@ -601,6 +913,14 @@ export default {
             });
           });
     },
+    //   销售记录
+    saleRecordBtn() {
+      this.$router.push({path: "/sale_management/sale_records/List"})
+    },
+    //   积分兑换记录
+    exchangeRecordBtn() {
+      this.$router.push({path: "/sale_management/exchange_point_products_records/list"})
+    }
   },
 }
 </script>

@@ -140,22 +140,18 @@ export default {
     const init = async () => {
       isAdmin.value = loginEmp().isAdmin;
       loginName.value = loginEmp().nickName;
-      try {
-          ajaxGet('/empMenu', {}).then((res1) =>{
-            if (res1) {
-              const res = res1.data
-              if (res?.code === 200) {
-                menu_catalogs.value = res.data;
-              } else {
-                console.error("获取菜单失败，状态码：",res?.data.code);
-              }
-            } else {
-              router.push("/LoginForm");
-            }
-        })
-      } catch (error) {
-        console.error('Failed to fetch menu:', error);
-      }
+      ajaxGet('/empMenu', {}).then((res1) =>{
+        if (res1) {
+          const res = res1.data
+          if (res?.code === 200) {
+            console.log(res,"res")
+            menu_catalogs.value = res.data;
+          }
+        } else {
+          popup("获取菜单失败，请重试","error");
+          router.push("/LoginForm");
+        }
+      })
     };
     // 个人资料
     const informationBtn = async () => {

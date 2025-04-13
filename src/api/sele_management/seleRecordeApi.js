@@ -12,3 +12,11 @@ export function getOptionSaleRecordsGoods(params) {
 export function saveSaleRecords(data) {
     return ajaxJson(apiPrefix + "/saveSaleRecords", data)
 }
+// 销售记录
+export function queryPageByQoSaleRecords(data) {
+    return ajaxPost(apiPrefix + "/queryPageByQoSaleRecords", data)
+}
+//删除销售记录
+export function delSaleRecords(data) {
+    return ajaxGet(apiPrefix + "/delSaleRecords", data)
+}
