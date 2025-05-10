@@ -10,7 +10,7 @@
       <!-- 销售编号 -->
       <el-col :span="4">
         <el-input
-            style="width:130px ;text-align: center"
+            style="width:130px ;text-align: center;float: left;"
             placeholder="销售编号"
             v-model="searchForm.cn">
         </el-input>
@@ -145,7 +145,7 @@
             label="操作"
             width="150">
           <template v-slot="scope">
-            <el-button type="success" size="mini" @click="handleEdit(scope.$index)" style="height: 28px;width: 40px">
+            <el-button type="success" size="mini" @click="handleEdit(scope.row)" style="height: 28px;width: 40px">
               明细
             </el-button>
             <el-button type="danger" size="mini" @click="handleDelete(scope.row.cn)" style="height: 28px;width: 40px">
@@ -172,10 +172,161 @@
     <!--销售订单明细弹窗-->
     <el-dialog
         title="销售订单明细"
-
+        width="80%"
+        v-model="detailSaleRecordsVisable"
+        :destroy-on-close="true"
     >
-
+      <el-form
+          :model="saleRecordForm"
+          label-width="100px">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="销售编号" style="width: 60%">
+              <el-input
+                  v-model="saleRecordForm.cn"
+                  placeholder="销售编号"
+                  disabled
+              >
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item
+                label="支付方式"
+                prop="sellway"
+            >
+              <el-radio
+                  disabled
+                  type="radio"
+                  v-model="saleRecordForm.sellway"
+                  label="0">
+                支付宝
+              </el-radio>
+              <el-radio
+                  disabled
+                  type="radio"
+                  v-model="saleRecordForm.sellway"
+                  label="1">
+                微信
+              </el-radio>
+              <el-radio
+                  disabled
+                  type="radio"
+                  v-model="saleRecordForm.sellway"
+                  label="2">
+                银行卡
+              </el-radio>
+              <el-radio
+                  disabled
+                  type="radio"
+                  v-model="saleRecordForm.sellway"
+                  label="3">
+                现金
+              </el-radio>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="顾客类型" prop="info">
+              <el-radio
+                  disabled
+                  type="radio"
+                  v-model="saleRecordForm.type"
+                  label="1">
+                会员
+              </el-radio>
+              <el-radio
+                  disabled
+                  type="radio"
+                  v-model="saleRecordForm.type"
+                  label="0">
+                非会员
+              </el-radio>
+            </el-form-item>
+          </el-col>
+          </el-row>
+        <hr>
+        <el-col :span="24">
+          <el-table
+              :data="saleRecordForm.detailSaleRecords"
+              style="width: 100%"
+              size="small"
+              empty-text="暂无数据"
+          >
+            <el-table-column
+                label="商品编号"
+                prop="goodsId"
+            >
+            </el-table-column>
+            <el-table-column
+                label="商品名称"
+                prop="goodsName"
+            >
+            </el-table-column>
+            <el-table-column
+                label="数量"
+                prop="goodsNum"
+            >
+              <template v-slot="scope">
+                <el-button type="success"  disabled>-</el-button>
+                <el-input
+                    disabled
+                    readonly
+                    type="text"
+                    v-model="scope.row.goodsNum"
+                    style="width: 100px;text-align: center;"
+                    min="1"
+                >
+                </el-input>
+                <el-button type="success"disabled >+</el-button>
+              </template>
+            </el-table-column>
+            <el-table-column
+                label="商品价格"
+                prop="goodsPrice"
+            >
+            </el-table-column>
+          </el-table>
+        </el-col>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="备注" prop="info">
+              <el-input
+                  disabled
+                  type="textarea"
+                  v-model="saleRecordForm.info"
+                  placeholder="如：订单1"
+              >
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <div v-if="saleRecordForm.detailSaleRecords.length > 0">
+              订单号：{{saleRecordForm.cn}}
+              &nbsp;
+              消费总数：{{saleRecordForm.sellTotal}}个
+              &nbsp;
+              订单总额：{{saleRecordForm.sellTotalmoney}}元
+              &nbsp;
+              支付方式：{{saleRecordForm.sellway == 1 ? "微信" : saleRecordForm.sellway == 0 ? "支付宝" : saleRecordForm.sellway == 3 ? "银行卡" : "现金支付"}}
+              &nbsp;
+              <br>
+              顾客类型：{{saleRecordForm.type == 1 ? "会员" : "非会员"}}&nbsp;
+              <span v-if="saleRecordForm.type == 1">享受9折优惠：{{saleRecordForm.memberId}}</span>&nbsp;
+              支付方式：{{saleRecordForm.sellway == 0 ? "微信" : saleRecordForm.sellway == 1 ? "支付宝" : saleRecordForm.sellway == 2 ? "银行卡" : "现金支付"}}&nbsp;
+              操作时间：{{saleRecordForm.sellTime}}&nbsp;
+              操作者编号：{{saleRecordForm.eid}}&nbsp;
+            </div>
+            </el-col>
+        </el-row>
+      </el-form>
     </el-dialog>
+
   </div>
 </template>
 
@@ -187,6 +338,7 @@ import {delSaleRecords, queryPageByQoSaleRecords} from "@/api/sele_management/se
 export default {
   data() {
     return {
+      detailSaleRecordsVisable : false,
       searchForm: {
         pageSize: 5,
       },
@@ -222,10 +374,29 @@ export default {
     submitSearchForm() {
       this.init();
     },
-    handleEdit(index) {
-      console.log(index);
+    handleEdit(row) {
+      console.log("接收的行数据:", row);
+      // 深拷贝数据
+      this.saleRecordForm = JSON.parse(JSON.stringify({
+        cn: row.cn,
+        sellway: row.sellway,
+        info: row.info,
+        sellTotal: row.sellTotal,
+        sellTotalmoney: row.sellTotalmoney,
+        type: row.type,
+        detailSaleRecords: row.detailSaleRecords || [],
+        memberId: row.memberId,
+        sellTime: row.sellTime,
+        eid: row.eid
+      }));
+      // 调试输出
+      console.log("表单数据准备完成:", this.saleRecordForm);
+      // 确保打开弹窗
+      this.$nextTick(() => {
+        this.detailSaleRecordsVisable = true;
+        console.log("弹窗状态已更新");
+      });
     },
-    // 删除
     handleDelete(cn) {
       this.$confirm('此操作将永久删除该销售记录, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -282,7 +453,9 @@ export default {
   margin-right: 20px;
   float: right;
 }
-
+el-dialog {
+  z-index: 2000 !important;
+}
 .table {
   width: 100%;
 }

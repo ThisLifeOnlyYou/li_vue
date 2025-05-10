@@ -11,12 +11,12 @@
         </div>
         <el-dropdown>
           <el-icon style="margin-right: 8px; margin-top: 1px;width:50px;height:50px;">
-            <el-aviatar
+            <el-avatar
                 :size="50"
                 shape="square"
                 :src="BaseApi + circleUrl"
             >
-            </el-aviatar>
+            </el-avatar>
           </el-icon>
           <template #dropdown>
             <el-dropdown-menu>
@@ -38,13 +38,14 @@
       </div>
     </el-header>
     <el-container>
-      <el-aside width="200px" style="height:100vb ;background-color: #6495ED">
+      <el-aside style="width: 200px ;height: 100%">
         <el-scrollbar>
           <el-menu   background-color="#6495ED"
                      text-color="white"
                      :router="true"
                      :unique-opened="true"
-                     active-text-color="#FFDEAD">
+                     active-text-color="#FFDEAD"
+          >
             <el-sub-menu
                 v-for="item in menu_catalogs"
                 :key = "item.id"
@@ -141,14 +142,19 @@ export default {
       isAdmin.value = loginEmp().isAdmin;
       loginName.value = loginEmp().nickName;
       ajaxGet('/empMenu', {}).then((res1) =>{
-        if (res1) {
-          const res = res1.data
-          if (res?.code === 200) {
-            console.log(res,"res")
-            menu_catalogs.value = res.data;
+        try {
+          if (res1) {
+            const res = res1.data
+            if (res?.code === 200) {
+              menu_catalogs.value = res.data;
+            }
+          } else {
+            // popup("获取菜单失败，请重新登录","error");
+            router.push("/LoginForm");
           }
-        } else {
-          popup("获取菜单失败，请重试","error");
+        }
+        catch (error) {
+          popup("获取菜单失败，请重新登录","error");
           router.push("/LoginForm");
         }
       })
@@ -156,30 +162,30 @@ export default {
     // 个人资料
     const informationBtn = async () => {
       await router.push("/personal/information");
-      popup("请完善个人的资料");
+      popup("请完善个人的资料","success");
     };
     // 退出
     const empExit = async () => {
       try {
         await ElMessageBox.confirm("确定退出吗？", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      }).then(async () => {
-        await ajaxGet('/exit',{}).then(res => {
-          const res1 = res.data
-          if (res1.code === 200) {
-            popup("退出成功，请重新登录",);
-            clearCookie("token");
-            clearCookie("employee");
-            router.push("/LoginForm");
-          } else {
-            popup("退出失败，请重试");
-          }
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }).then(async () => {
+          await ajaxGet('/exit',{}).then(res => {
+            const res1 = res.data
+            if (res1.code === 200) {
+              popup("退出成功，请重新登录",);
+              clearCookie("token");
+              clearCookie("employee");
+              router.push("/LoginForm");
+            } else {
+              popup("退出失败，请重试");
+            }
+          })
+        }).catch(()=>{
+          ElMessageBox.close();
         })
-      }).catch(()=>{
-        ElMessageBox.close();
-      })
       } catch (error) {
         popup("退出失败，请重试");
       }
@@ -188,19 +194,19 @@ export default {
     // 注销
     const logoutSubmit = async (formName) => {
       await ajaxPost('/logout', { content: logoutform.value.content }).then(
-        (res) => {
-          if (res.code === 200) {
-            popup("注销成功，请重新登录");
-            router.push("/LoginForm");
-          } else {
-            popup("注销失败，请重试");
+          (res) => {
+            if (res.code === 200) {
+              popup("注销成功，请重新登录");
+              router.push("/LoginForm");
+            } else {
+              popup("注销失败，请重试");
+            }
           }
-        }
       );
     };
     const logoutCel = (formName) => {
       logoutVisable.value = false;
-      };
+    };
     onMounted(() => {
       init();
     });
@@ -224,7 +230,7 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style >
 .layout-container-demo  {
   position: relative;
   background-color: #6495ED;
@@ -252,5 +258,32 @@ export default {
   color: #333;
   border-bottom: 1px black solid;
   height: 50px;
+}
+/* 清除所有菜单边框和分隔线 */
+.el-menu,
+.el-menu-item-group,
+.el-sub-menu__title,
+.el-menu-item {
+  border: none !important;
+  border-bottom: none !important;
+}
+
+/* 统一背景色 */
+.el-aside {
+  background-color: #6495ED;
+}
+
+.el-menu {
+  background-color: transparent;
+}
+
+/* 调整菜单项间距 */
+.el-menu-item {
+  margin: 2px 0;
+}
+
+/* 隐藏滚动条（可选） */
+.el-scrollbar__bar {
+  opacity: 0;
 }
 </style>

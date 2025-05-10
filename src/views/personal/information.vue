@@ -1,269 +1,278 @@
 <template>
-  <div>
+  <div id="information">
     <el-breadcrumb separator="/">
-      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>首页</el-breadcrumb-item>
       <el-breadcrumb-item>个人中心</el-breadcrumb-item>
       <el-breadcrumb-item>个人资料</el-breadcrumb-item>
     </el-breadcrumb>
-    <i class="el-icon-circle el-icon-arrow-right" style="font-size:32px">
-      <b style="font-size: 28px">完善个人资料</b>
-      <br/>
-      <br/>
-      <el-form
-          :model="informationForm"
-          ref="informationForm"
-          label-width="100px"
-          class="demo-form-inline"
-      >
-        <!--        todo: 上传头像 -->
-        <el-row>
-          <el-col :span="24">
-            <el-form-item style="margin-top:20px">
-              <el-upload
-                  class="upload-demo"
-                  :show-file-list="false"
-                  :on-success="handleAvatarSuccess"
-                  :before-upload="beforeAvatarUpload"
-              >
-                <img src="public/favicon.ico">
-              </el-upload>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <!--        todo: 手机号&姓名&身份证号-->
-        <el-row>
-          <el-col :span="12">
-            <el-form-item
-                style="width: 40%"
-                label="电话号码："
-                prop="username"
+    <br />
+
+    <i class="iconfont icon-r-paper" style="font-size: 32px">
+      <b style="font-size: 28px">完善个人资料</b></i
+    >
+    <br />
+    <br />
+    <el-form
+        :model="informationForm"
+        :rules="rules"
+        ref="informationForm"
+        label-width="100px"
+        class="demo-ruleForm"
+    >
+      <el-row>
+        <el-col :span="12">
+          <el-form-item style="width: 20%;">
+            <el-upload
+                class="avatar-uploader"
+                action="http://192.168.1.114:9291/personnel_management/employee/uploadImg"
+                :show-file-list="false"
+                :on-success="handleAvatarSuccess"
+                :before-upload="beforeAvatarUpload"
             >
-              <el-input
-                  max="11"
-                  v-model="username"
-                  disabled
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item
-                style="width: 40%"
-                label="姓名："
-                prop="nickName"
+              <el-image
+                  v-if="imageUrl"
+                  :src="BaseApi + imageUrl"
+                  style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"
+              />
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item style="width: 40%" label="电话号码：" prop="username">
+            <el-input max="11" v-model="informationForm.username"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item style="width: 40%" label="姓名：" prop="nickName">
+            <el-input v-model="informationForm.nickName"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item style="width: 40%" label="身份证号：" prop="idCard">
+            <el-input v-model="informationForm.idCard"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item style="width: 40%" label="年龄：">
+            <el-input
+                type="number"
+                min="18"
+                max="70"
+                v-model="informationForm.age"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item style="width: 40%" label="所属部门：">
+            <el-select
+                disabled
+                style="width: 200px"
+                v-model="informationForm.deptId"
+                placeholder="请选择部门"
+                filterable
+                @change="$forceUpdate()"
+                clearable
             >
-              <el-input
-                  v-model="nickName"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <!--        todo: 年龄&身份证号-->
-        <el-row>
-          <el-col :span="12">
-            <el-form-item
-                style="width: 40%"
-                label="身份证号："
-                prop="idCard"
+              <el-option
+                  v-for="item in options"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item style="width: 40%" label="住址：">
+            <el-input type="text" v-model="informationForm.address"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item style="width: 40%" label="备注：">
+            <el-input
+                type="textarea"
+                cols="50"
+                rows="3"
+                v-model="informationForm.info"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item style="width: 40%" label="性别：">
+            <el-select
+                style="width: 200px"
+                v-model="informationForm.sex"
+                @change="$forceUpdate()"
+                placeholder="请选择性别"
+                clearable
             >
-              <el-input
-                  v-model="idCard"
-                  disabled
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item style="width: 40%" label="年龄：">
-              <el-input
-                  type="number"
-                  min="18"
-                  max="70"
-                  v-model="age"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <!--        todo: 所属部门&住址-->
-        <el-row>
-          <el-col :span="12">
-            <el-form-item
-                style="width: 40%"
-                label="所属部门："
-            >
-              <el-input
-                  disabled
-                  style="width: 200px"
-                  v-model="selectedDeptName"
-                  placeholder="请选择部门"
-              >
-              </el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item style="width: 40%" label="住址：">
-              <el-input
-                  type="text"
-                  v-model="address"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <!--        todo: 备注&性别-->
-        <el-row>
-          <el-col :span="12">
-            <el-form-item style="width: 40%" label="备注：">
-              <el-input
-                  type="textarea"
-                  cols="50"
-                  rows="3"
-                  v-model="info"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item style="width: 40%" label="性别：">
-              <el-select
-                  style="width: 200px"
-                  v-model="sex"
-                  @change="$forceUpdate()"
-                  placeholder="请选择性别"
-                  clearable
-              >
-                <el-option label="女" value="0"></el-option>
-                <el-option label="男" value="1"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <!--        todo: 提交&重制-->
-        <el-form-item>
-          <el-button
-              type="primary"
-              @click="submitInformationForm('informationForm')">
-            提交
-          </el-button>
-          <el-button @click="resetForm(informationForm)">
-            重制
-          </el-button>
-        </el-form-item>
-      </el-form>
-    </i>
+              <el-option label="女" value="0"></el-option>
+              <el-option label="男" value="1"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-form-item>
+        <el-button
+            type="primary"
+            @click="submitInformationForm('informationForm')"
+            style="font-size: 18px"
+            :disabled="!isFormChanged"
+        >
+          <i class="iconfont icon-r-yes" style="font-size: 18px"></i>
+          提交
+        </el-button>
+        <el-button
+            @click="resetForm('informationForm')"
+            style="font-size: 18px"
+        >
+          <i class="iconfont icon-r-refresh" style="font-size: 18px"></i>
+          重置
+        </el-button>
+      </el-form-item>
+    </el-form>
   </div>
 </template>
+
 <script>
-import {onMounted, ref} from "vue";
-import {useStore} from 'vuex'
-import {popup} from "@/assets/js/common";
-import {listByQo} from "@/api/personnel_management/department/deptApi"
-import {update} from "@/api/personnel_management/employee/empApi"
-import {queryInformation} from "@/api/personal/presonAPi";
-import router from "@/router";
+import { listByQo } from "@/api/personnel_management/department/deptApi";
+import { popup } from "@/assets/js/common";
+import { queryInformation } from "@/api/personal/presonAPi";
+import { update } from "@/api/personnel_management/employee/empApi";
+import { loginEmp } from "@/assets/js/auth";
 
 export default {
-  setup() {
-    const store = useStore()
-    const informationForm = ref({})
-    const handleAvatarSuccess = ref({})
-    const beforeAvatarUpload = ref({})
-    const imageUrl = ref("")
-    const BaseApi = store.state.BaseApi
-    const options = ref([])
-    const selectedDeptName = ref('')
-    const nickName = ref('')
-    const username = ref('')
-    const idCard = ref('')
-    const age = ref('')
-    const address = ref('')
-    const info = ref('')
-    const sex = ref('')
-    // 获取仓库信息
-    const deptAll = async () => {
-      try {
-        listByQo({}).then((res) => {
-          res = res.data;
-          if (res.code === 200) {
-            options.value = res.data;
-            selectedDeptName.value = options.value[0].name
-          } else {
-            popup(res.msg, "error");
-          }
-        })
-      } catch (error) {
-        console.error('Failed to fetch menu:', error);
-      }
-    }
-    // 获取个人信息
-    const init = async () => {
-      try {
-        queryInformation({}).then((ref) => {
-          if (ref) {
-            ref = ref.data
-            if (ref.code === 200) {
-              informationForm.value = ref.data
-              nickName.value = informationForm.value.nickName
-              username.value = informationForm.value.username
-              idCard.value = informationForm.value.idCard
-              age.value = informationForm.value.age
-              address.value = informationForm.value.address
-              info.value = informationForm.value.info
-              sex.value = informationForm.value.sex
-            } else {
-              popup(ref.msg, "error");
-            }
-          } else {
-            router.push("/LoginForm");
-          }
-        })
-      } catch (error) {
-        console.error('Failed to fetch menu:', error);
-      }
-    }
-    // todo: 提交个人信息
-    const submitInformationForm = async () => {
-      try {
-        update({informationForm}).then((res) => {
-          if (res) {
-            res = res.data;
-            if (res.code === 200) {
-              popup(res.msg, "更新成功");
-            } else {
-              popup(res.msg, "更新失败");
-            }
-          }
-        })
-      } catch (error) {
-        popup("error", error);
-      }
-    }
-    // 重制个人信息
-    const resetForm = () => {
-      if (informationForm.value) {
-        informationForm.value.resetFields();
-      }
-      init();
-    }
-
-    onMounted(() => {
-      init();
-      deptAll();
-    });
+  data() {
     return {
-      informationForm,
-      submitInformationForm,
-      resetForm,
-      handleAvatarSuccess,
-      beforeAvatarUpload,
-      imageUrl,
-      BaseApi,
-      options,
-      selectedDeptName,
-      nickName,
-      username,
-      idCard,
-      age,
-      address,
-      info,
-      sex,
+      BaseApi: this.$store.state.BaseApi,
+      loginEid: loginEmp().id,
+      informationForm: {},
+      initialFormData: {}, // 保存初始表单数据
+      imageUrl: "",
+      options: [],
+      rules: {
+        username: [
+          {
+            required: true,
+            message: "手机号不能为空",
+            trigger: "blur",
+          },
+        ],
+        nickName: [
+          {
+            required: true,
+            message: "姓名不能为空",
+            trigger: "blur",
+          },
+        ],
+        idCard: [
+          {
+            required: true,
+            message: "身份证号不能为空",
+            trigger: "blur",
+          },
+        ],
+      },
+    };
+  },
+  computed: {
+    // 计算表单是否有修改
+    isFormChanged() {
+      return JSON.stringify(this.informationForm) !== JSON.stringify(this.initialFormData);
     }
-  }
-}
+  },
+  methods: {
+    deptAll() {
+      listByQo({}).then((res) => {
+        res = res.data;
+        if (res.code == 200) {
+          this.options = res.data;
+        } else {
+          popup(res.msg, "error");
+        }
+      });
+    },
+    init() {
+      queryInformation().then((res) => {
+        res = res.data;
+        if (res.code == 200) {
+          this.informationForm = { ...res.data };
+          this.imageUrl = this.informationForm.headImg;
+        } else {
+          popup(res.msg, "error");
+        }
+      });
+    },
+    submitInformationForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          update(this.informationForm).then((res) => {
+            res = res.data;
+            if (res.code == 200) {
+              popup("更新成功", "warning");
+              this.initialFormData = JSON.parse(JSON.stringify(this.informationForm)); // 更新初始数据
+            } else {
+              popup(res.msg, "error");
+            }
+            this.init();
+          });
+        }
+      });
+    },
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
+      this.init();
+    },
+    handleAvatarSuccess(res) {
+      this.informationForm.headImg = res.url;
+      this.imageUrl = res.url;
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === "image/jpeg" || file.type === "image/png";
+      const isLt2M = file.size / 1024 / 1024 < 3;
+      if (!isJPG) {
+        this.$message.error("上传头像图片只能是 JPG或PNG 格式!");
+      }
+      if (!isLt2M) {
+        this.$message.error("上传头像图片大小不能超过 3MB!");
+      }
+      return isJPG && isLt2M;
+    },
+  },
+  mounted() {
+    this.imageUrl = "";
+    this.deptAll();
+    this.init();
+  },
+};
 </script>
+
+<style scoped>
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+  border: 1px dashed #d9d9d9;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.avatar-uploader-icon:hover {
+  border-color: #409eff;
+}
+.el-button.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+</style>

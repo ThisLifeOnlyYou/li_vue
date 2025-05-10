@@ -13,6 +13,9 @@ const edit_pwd =() => import('../views/personal/Edit_pwd.vue')
 const sale_home = () => import('../views/sale_management/sale_cmd/List.vue')
 // 销售记录
 const sale_record = () => import('../views/sale_management/sale_records/List.vue')
+// 积分兑换记录
+const exchange_point_products_records = () => import('../views/sale_management/exchange_point_products_records/List.vue')
+
 const routes = [
     {
         path: '/',
@@ -54,6 +57,11 @@ const routes = [
                 path: '/sale_management/sale_records/list',
                 name: '/sale_management/sale_records/list',
                 component:sale_record
+            },
+            {
+                path: '/sale_management/exchange_point_products_records/list',
+                name: '/sale_management/exchange_point_products_records/list',
+                component:exchange_point_products_records
             }
         ]
     }

@@ -10,7 +10,7 @@ import Cookies from "js-cookie";
 import qs from 'qs';
 
 // const prefix_url = "http://localhost:9291"
-const prefix_url = "http://127.0.0.1:9291"
+const prefix_url = "http://192.168.1.114:9291"
 
 /*刷新Cooke的存活时间*/
 function refreshCookies() {
