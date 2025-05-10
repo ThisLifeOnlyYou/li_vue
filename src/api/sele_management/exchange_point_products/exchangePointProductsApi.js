@@ -30,6 +30,7 @@ export function queryOptionsMemberPhone() {
 export function queryPageByQoExchangePointProducts(data) {
     return ajaxPost(apiPrefix + "/queryPageByQoExchangePointProducts", data)
 }
+
 // 删除兑换记录
 export function delExchangePointProducts(data) {
     return ajaxGet(apiPrefix + "/delExchangePointProducts", data)
