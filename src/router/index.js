@@ -15,7 +15,8 @@ const sale_home = () => import('../views/sale_management/sale_cmd/List.vue')
 const sale_record = () => import('../views/sale_management/sale_records/List.vue')
 // 积分兑换记录
 const exchange_point_products_records = () => import('../views/sale_management/exchange_point_products_records/List.vue')
-
+// 部门管理
+const department_management = () => import('../views/personnel_management/dept/List.vue')
 const routes = [
     {
         path: '/',
@@ -62,6 +63,11 @@ const routes = [
                 path: '/sale_management/exchange_point_products_records/list',
                 name: '/sale_management/exchange_point_products_records/list',
                 component:exchange_point_products_records
+            },
+            {
+                path: '/personnel_management/dept/list',
+                name: '/personnel_management/dept/list',
+                component:department_management
             }
         ]
     }
