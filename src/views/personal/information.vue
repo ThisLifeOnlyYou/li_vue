@@ -147,7 +147,7 @@
 import { listByQo } from "@/api/personnel_management/department/deptApi";
 import { popup } from "@/assets/js/common";
 import { queryInformation } from "@/api/personal/presonAPi";
-import { update } from "@/api/personnel_management/employee/empApi";
+import { update ,uploadImg} from "@/api/personnel_management/employee/empApi";
 import { loginEmp } from "@/assets/js/auth";
 
 export default {
@@ -248,7 +248,19 @@ export default {
       }
       return isJPG && isLt2M;
     },
+    uploadImg() {
+      uploadImg(this.beforeAvatarUpload(file).headImg).then((res) => {
+        console.log(uploadImg,"111");
+        res = res.data;
+        if (res.code == 200) {
+          this.imageUrl = res.data;
+          this.informationForm.headImg = res.data;
+        } else {
+          popup(res.msg, "error");
+        }
+      });
   },
+    },
   mounted() {
     this.imageUrl = "";
     this.deptAll();

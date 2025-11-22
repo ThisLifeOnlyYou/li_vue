@@ -8,10 +8,8 @@ import axios from "axios";
 import {ElMessage} from "element-plus";
 import Cookies from "js-cookie";
 import qs from 'qs';
-
-const prefix_url = "http://localhost:9291"
-// const prefix_url = "http://192.168.1.114:9291"
-
+// const prefix_url = "http://localhost:9291"
+const prefix_url = "http://192.168.1.106:9291"
 /*刷新Cooke的存活时间*/
 function refreshCookies() {
     var token=getToken()
@@ -35,7 +33,6 @@ function refreshCookies() {
     }
     return token;
 }
-
 /*post请求*/
 export function ajaxPost(url, param) {
     return axios({
@@ -82,7 +79,6 @@ export function ajaxJson(url, param) {
 
     })
 }
-
 /*GET请求*/
 export function ajaxGet(url, param) {
     return axios({
